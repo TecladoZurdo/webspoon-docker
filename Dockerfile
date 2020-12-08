@@ -36,3 +36,15 @@ RUN echo "CLASSPATH="$CATALINA_HOME"/lib/webspoon-security-$dist-$patch.jar" | t
 COPY --chown=tomcat:tomcat catalina.policy ${CATALINA_HOME}/conf/
 RUN mkdir -p $HOME/.kettle/users && mkdir -p $HOME/.pentaho/users
 RUN mkdir -p $HOME/.kettle/data && cp -r ${CATALINA_HOME}/samples $HOME/.kettle/data/samples
+
+# zona horaria de Ecuador
+USER root
+RUN rm /etc/localtime
+RUN ln -s /usr/share/zonetime/America/Guayaquil /etc/localtime
+
+# add drivers oracle mssql y postgres poner los jar en una carpeta temp/jdbc
+COPY  temp/jdbc/ ${CATALINA_HOME}/lib
+RUN chown -R tomcat:tomcat ${CATALINA_HOME}
+# setenv
+USER tomcat
+RUN echo 'CATALINA_OPTS="-Duser.timezone=America/Guayaquil"' >> ${CATALINA_HOME}/bin/setenv.sh
